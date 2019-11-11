@@ -1,0 +1,46 @@
+syntax = "proto3";
+package library;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "server/proto/library";
+
+enum BookType{
+    HARDCOVER =0;
+    PAPERBACK =1;
+    AUDIOBOOK = 2;
+}
+message Publisher{
+    string name = 1;
+}
+message  Book{
+    int64 isbn = 1;
+    string title = 2;
+    string author =3;
+    BookType book_type = 4;
+    oneof publishing_method {
+        bool self_published = 5;
+        Publisher publisher = 6; 
+    }
+    google.protobuf.Timestamp publication_date = 7;
+}
+
+message GetBookRequest{
+    int64 isbn =1; 
+}
+message  Collection {
+    repeated Book books = 1;
+}
+message QueryBooksRequest {
+    string author_prefix = 1;
+}
+message EmptyRequest {
+
+}
+service BookService{
+    rpc GetBook(GetBookRequest) returns (Book) {}
+    rpc QueryBooks(QueryBooksRequest) returns (stream Book) {}
+    rpc MakeCollection(stream Book) returns (Collection) {}
+    rpc GetAllBooks(EmptyRequest) returns (Collection){}
+}
+
